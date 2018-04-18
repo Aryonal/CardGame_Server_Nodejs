@@ -8,31 +8,55 @@ var handle = function (server) {
         console.log('server: client ' + client.id.toString() + ' connected.');
 
         /**
-         * on msg
+         * test event
          */
-        client.on('msg', function (data){
+        client.on('test', function (data){
             console.log(data);
-            client.emit('reply', 'got it.');
+            client.emit('testReply', 'got it.');
         });
 
         /**
-         * 
+         * broadcast test
          */
-        client.on('broadcast', function (data) {
+        client.on('broadcastTest', function (data) {
             console.log('broadcast!');
-            io.sockets.emit('broad', 'broadcast test.');
+            io.sockets.emit('testBroadcast', 'broadcast test.');
             // client.broadcast.emit('broad', 'broadcast test.'); // this client won't receive msg.
         });
 
         /**
-         * join room
+         * new player add to room
          */
-        client.on('joinRoom', function (room) {
-           console.log('new member to join ' + room.toString());
-           client.join(room);
-           io.to(room).emit('reply', 'new member.');
-           // client.to(room).emit('reply', 'new member.'); // this client won't receive this msg.
+        client.on('openRoom', function (data) {
+            console.log('[comm/ioHandler]: on openRoom: receive msg: ' + data.toString());
+            userId = data.userId;
+            auth = data.auth;
+            // TODO: arena add new player
+            arena.newPlayer(userId, function (ok, data) {
+                if(ok) {
+                    roomId = data.roomId;
+                    client.join(roomId);
+                    io.to(roomId).emit('intoRoom', data);
+                    io.to(roomId).emit('startGame', data);
+                    // client.to(room).emit('reply', 'new member.'); // this client won't receive this msg.
+                }
+            });
         });
+
+        /**
+         * player ready to accept question
+         */
+        client.on('ready', function (data) {
+            console.log('[comm/ioHandler]: on ready: receive msg: ' + data.toString());
+            userId = data.userId;
+            roomId = data.roomId;
+            // TODO: arena.room pop new question
+
+        });
+
+        /**
+         * judge
+         */
     });
 };
 

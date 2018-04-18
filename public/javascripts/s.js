@@ -1,13 +1,22 @@
-const socket = io('http://localhost:3000');
+var socket = io.connect('http://' + document.domain + ':' + location.port);
 
 socket.on('connect', function() {
-    console.log('client connected.')
+    console.log('connected.')
+});
+socket.on('intoRoom', function (data) {
+    console.log(data);
+});
+socket.on('question', function (data) {
+    console.log(data);
 });
 
-socket.on('reply', function(data) {
-    console.log('got reply: ' + data);
-});
+var openRoom = function (userId) {
+    socket.emit('openRoom', {
+        userId: userId,
+        auth: '***'
+    })
+};
 
-socket.on('broad', function(data) {
-    console.log('got broad: ' + data);
-});
+var ready = function () {
+    socket.emit('ready')
+};
