@@ -1,52 +1,149 @@
-var db = require('db');
-var Emitter = require('events');
+const db = require('./db');
+const game = require('./game');
+const Emitter = require('events');
 
-var e = new Emitter();
+const e = new Emitter();
 
+/**
+ * @param userId: string
+ * @param callback: function (ok, data)
+ */
 e.on('newPlayer', function (room, userId, callback) {
-    // TODO: add player to room
+    console.log('[room/newPlayer]: new player ' + userId);
+    // add player to room
+    // init a player here
     room.players.set(userId, {
-        ready: false,
+        ready: true,
         board: [],
-        pool: [],
+        stage: [],
         magic: 0,
         score: 0,
+        answer: -1,
+        combo: -1,
         win: 0,
         all: 0
     });
+    room.playerIds.push(userId);
     db.get('user', userId, function (err, data) {
-        // TODO: update player data
-
-        // TODO: check if ready
-        // TODO: callback(ok, data)
+        if (err) {
+            console.log(err.toString());
+            callback(false, {});
+            return;
+        }
+        // update room player data
+        room.players.get(userId).stage = data.stage;
+        room.players.get(userId).win = data.win;
+        room.players.get(userId).all = data.all;
+        // check if ready
         if (room._isReady()) {
+            console.log('[room/newPlayer]: ready.');
             room._resetReady();
             callback(true, {
                 roomId: room.id,
-                players: Array.from(room.players.entries())
+                players: room.playerIds
             });
         } else {
-            callback(false, {});
+            console.log('[room/newPlayer]: not ready.');
+            callback(false, {roomId: room.id});
         }
     });
 });
 
+/**
+ * @param data: object {
+ *          userId,
+ *          roomId
+ *       }
+ * @param callback: function(ok, data)
+ */
 e.on('newQuestion', function (room, data, callback) {
+    console.log('[room/newQuestion]: player ' + data.userId + ' ready');
+    room.players.get(data.userId).ready = true;
     // TODO: check if ready
-    // TODO: pop new question
-    // TODO: update room.question and room.answer
-    // TODO: callback(ok, data)
+    if (room._isReady()) {
+        room._resetReady();
+        db.get('question', 0, function (err, data) {
+            if (err) {
+                console.log(err.toString());
+                callback(false, {});
+                return;
+            }
+            room.question = data.question;
+            room.answer = data.answer;
+            callback(true, {
+                question: room.question,
+                options: data.options
+            });
+        });
+    } else {
+        callback(false, {});
+    }
 });
 
+/**
+ * @param data: object {
+ *          userId,
+ *          roomId,
+ *          data: {
+ *                  magic,
+ *                  score,
+ *                  combo,
+ *                  answer,
+ *                  board
+ *                }
+ *       }
+ * @param callback: function (ok, data)
+ */
 e.on('judge', function (room, data, callback) {
-    // TODO: update player data
-    // TODO: check if ready
-    // TODO: judge
-    // TODO: callback(ok, data)
+    // TODO: check if identical
+    let userId = data.userId;
+    if (room._isIdentical(data)) {
+        room._updatePlayer(data);
+        room.players.get(userId).ready = true;
+        if (room._isReady()) {
+            room._resetReady();
+            game.judge(room, function (gameOver, winUserId) {
+                let players = room._playersToList(winUserId);
+                callback(true, {
+                    gameOver: gameOver,
+                    players: players
+                });
+            });
+        } else {
+            callback(false, {});
+        }
+    } else {
+        // TODO: raise error
+        callback(false, {});
+    }
 });
 
-var Room = function(roomId) {
+/**
+ * @param room
+ * @param data: object {
+ *          userId,
+ *          roomId
+ *          }
+ * @param callback: function (ok, data)
+ */
+e.on('nextRound', function (room, data, callback) {
+    let userId = data.userId;
+    room.players.get(userId).ready = true;
+    if (room._isReady()) {
+        room._resetReady();
+        room.round ++;
+        callback(true, {
+            round: room.round
+        });
+    } else {
+        callback(false, {});
+    }
+});
+
+const Room = function(roomId, vol) {
     this.id = roomId;
+    this.vol = vol;
+    this.playerIds = [];
     this.players = new Map(); //key: userId, value: player object
     this.question = '';
     this.answer = -1;
@@ -54,28 +151,100 @@ var Room = function(roomId) {
 };
 
 Room.prototype._isReady = function () {
-    for (var k of this.players.keys()) {
-        if (!this.players.get(k).ready) return false;
+    if (this.players.size < this.vol) return false;
+    for (let [k,v] of this.players.entries()) {
+        console.log('[room/_isReady]: ' + k + ', ready: ' + v.ready.toString());
+        if (!v.ready) return false;
     }
     return true;
 };
 
 Room.prototype._resetReady = function () {
-    for (var k of this.players.keys()) {
+    for (let k of this.players.keys()) {
         this.players.get(k).ready = false;
     }
+};
+
+/**
+ *
+ * @param data: object {
+ *                 userId,
+ *                 roomId,
+ *                 data: {
+ *                      magic,
+ *                      score,
+ *                      combo,
+ *                      answer,
+ *                      board
+ *                  }
+ *              }
+ * @returns {boolean}
+ * @private
+ */
+Room.prototype._isIdentical = function (data) {
+    let userId = data.userId;
+    let magic = data.data.magic;
+    let score = data.data.score;
+    return (magic === this.players.get(userId).magic && score === this.players.get(userId).score);
+};
+
+/**
+ *
+ * @param data: object {
+ *                 userId,
+ *                 roomId,
+ *                 data: {
+ *                      magic,
+ *                      score,
+ *                      combo,
+ *                      answer,
+ *                      board
+ *                  }
+ *              }
+ * @private
+ */
+Room.prototype._updatePlayer = function (data) {
+    let player = this.players.get(data.userId);
+    player.score = data.data.score;
+    player.magic = data.data.magic;
+    player.combo = data.data.combo;
+    player.answer = data.data.answer;
+    player.board = data.data.board;
+};
+
+/**
+ *
+ * @returns {Array}
+ * @private
+ */
+Room.prototype._playersToList = function (winUserId) {
+    let r = [];
+    this.playerIds.forEach((k) => {
+       r.push({
+           userId: k,
+           right: this.players.get(k).answer === this.answer,
+           win: k === winUserId,
+           magic: this.players.get(k).magic,
+           score: this.players.get(k).score
+       });
+    });
+    return r;
 };
 
 Room.prototype.newPlayer = function (userId, callback) {
     e.emit('newPlayer', this, userId, callback);
 };
 
-Room.prototype.newQuestion = function (msg, callback) {
-    e.emit('newQuestion', this, msg, callback);
+Room.prototype.newQuestion = function (data, callback) {
+    e.emit('newQuestion', this, data, callback);
 };
 
-Room.prototype.judge = function (msg, callback) {
-    e.emit('judge', this, msg, callback);
+Room.prototype.judge = function (data, callback) {
+    e.emit('judge', this, data, callback);
+};
+
+Room.prototype.nextRound = function (data, callback) {
+    e.emit('nextRound', this, data, callback);
 };
 
 module.exports = Room;
