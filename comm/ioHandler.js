@@ -35,7 +35,12 @@ const handle = function (server) {
             console.log('[comm/ioHandler]: on openRoom: receive msg: ' , data);
             let userId = data.userId;
             let auth = data.auth;
-            arena.newPlayer(userId, function (ok, data) {
+            arena.newPlayer(userId, function (ok, err, data) {
+                if (err) {
+                    console.log('[ioHandler/openRoom]: Error.');
+                    io.to(roomId).emit('Error', err.toString());
+                    return;
+                }
                 let roomId = data.roomId;
                 console.log('[ioHandler/openRoom]: user ' +userId+ ' join Room ' + roomId);
                 client.join(roomId);
@@ -53,7 +58,12 @@ const handle = function (server) {
             data = JSON.parse(data);
             console.log('[comm/ioHandler]: on ready: receive msg: ' , data);
             let roomId = data.roomId;
-            arena.question(roomId, data, function (ok, data) {
+            arena.question(roomId, data, function (ok, err, data) {
+                if (err) {
+                    console.log('[ioHandler/openRoom]: Error.');
+                    io.to(roomId).emit('Error', err.toString());
+                    return;
+                }
                 if (ok) {
                     io.to(roomId).emit('question', JSON.stringify(data));
                 }
@@ -67,7 +77,12 @@ const handle = function (server) {
             data = JSON.parse(data);
             console.log('[comm/ioHandler]: on answer: receive msg: ' , data);
             let roomId = data.roomId;
-            arena.judge(roomId, data, function (ok, data) {
+            arena.judge(roomId, data, function (ok, err, data) {
+                if (err) {
+                    console.log('[ioHandler/openRoom]: Error.');
+                    io.to(roomId).emit('Error', err.toString());
+                    return;
+                }
                 if (ok) {
                     io.to(roomId).emit('update', JSON.stringify(data));
                 }
@@ -81,7 +96,12 @@ const handle = function (server) {
             data = JSON.parse(data);
             console.log('[comm/ioHandler]: on nextRound: receive msg: ' , data);
             let roomId = data.roomId;
-            arena.nextRound(roomId, data, function (ok, data) {
+            arena.nextRound(roomId, data, function (ok, err, data) {
+                if (err) {
+                    console.log('[ioHandler/openRoom]: Error.');
+                    io.to(roomId).emit('Error', err.toString());
+                    return;
+                }
                if (ok) {
                     io.to(roomId).emit('startGame', JSON.stringify(data));
                }

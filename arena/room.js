@@ -22,7 +22,7 @@ db.init_test(function (err, result) {
 
 /**
  * @param userId: string
- * @param callback: function (ok, data)
+ * @param callback: function (ok, err, data)
  */
 e.on('newPlayer', function (room, userId, callback) {
     console.log('[room/newPlayer]: new player ' + userId);
@@ -43,7 +43,7 @@ e.on('newPlayer', function (room, userId, callback) {
     db.get('user', userId, function (err, data) {
         if (err) {
             console.log(err.toString());
-            callback(false, {});
+            callback(false, err, {});
             return;
         }
         // update room player data
@@ -54,13 +54,13 @@ e.on('newPlayer', function (room, userId, callback) {
         if (room._isReady()) {
             console.log('[room/newPlayer]: ready.');
             room._resetReady();
-            callback(true, {
+            callback(true, false, {
                 roomId: room.id,
                 players: room.playerIds
             });
         } else {
             console.log('[room/newPlayer]: not ready.');
-            callback(false, {roomId: room.id});
+            callback(false, false, {roomId: room.id});
         }
     });
 });
@@ -70,7 +70,7 @@ e.on('newPlayer', function (room, userId, callback) {
  *          userId,
  *          roomId
  *       }
- * @param callback: function(ok, data)
+ * @param callback: function(ok, err, data)
  */
 e.on('newQuestion', function (room, data, callback) {
     console.log('[room/newQuestion]: player ' + data.userId + ' ready');
@@ -81,18 +81,18 @@ e.on('newQuestion', function (room, data, callback) {
         db.get('question', 0, function (err, data) {
             if (err) {
                 console.log(err.toString());
-                callback(false, {});
+                callback(false, err, {});
                 return;
             }
             room.question = data.question;
             room.answer = data.answer;
-            callback(true, {
+            callback(true, false, {
                 question: room.question,
                 options: data.options
             });
         });
     } else {
-        callback(false, {});
+        callback(false, false, {});
     }
 });
 
@@ -108,7 +108,7 @@ e.on('newQuestion', function (room, data, callback) {
  *                  board
  *                }
  *       }
- * @param callback: function (ok, data)
+ * @param callback: function (ok, err, data)
  */
 e.on('judge', function (room, data, callback) {
     // TODO: check if identical
@@ -118,9 +118,14 @@ e.on('judge', function (room, data, callback) {
         room.players.get(userId).ready = true;
         if (room._isReady()) {
             room._resetReady();
-            game.judge(room, function (gameOver, winUserId) {
+            game.judge(room, function (err, gameOver, winUserId) {
+                if (err) {
+                    console.log(err.toString());
+                    callback(false, err, {});
+                    return;
+                }
                 let players = room._playersToList(winUserId);
-                callback(true, {
+                callback(true, false, {
                     gameOver: gameOver,
                     players: players
                 });
@@ -133,11 +138,11 @@ e.on('judge', function (room, data, callback) {
                 }
             });
         } else {
-            callback(false, {});
+            callback(false, false, {});
         }
     } else {
         // TODO: raise error
-        callback(false, {});
+        callback(false, new Error('Game Value Error.'), {});
     }
 });
 
@@ -147,7 +152,7 @@ e.on('judge', function (room, data, callback) {
  *          userId,
  *          roomId
  *          }
- * @param callback: function (ok, data)
+ * @param callback: function (ok, err, data)
  */
 e.on('nextRound', function (room, data, callback) {
     let userId = data.userId;
@@ -155,11 +160,11 @@ e.on('nextRound', function (room, data, callback) {
     if (room._isReady()) {
         room._resetReady();
         room.round ++;
-        callback(true, {
+        callback(true, false, {
             round: room.round
         });
     } else {
-        callback(false, {});
+        callback(false, false, {});
     }
 });
 
