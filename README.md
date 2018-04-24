@@ -8,11 +8,11 @@ message format
 
 ```python
 class msg(object):
-    '''
+    """
     id: int: msg send to room id
-	src: str: whom msg's from, 'client' or 'arena' or any other
+	src: str: whom msg"s from, "client" or "arena" or any other
 	data: dict: msg data
-    '''
+    """
     def __init__(self, id, src, data):
         self.id = id
         self.src = src
@@ -110,8 +110,8 @@ Client Broadcast Event **"intoRoom"**, json =
 
 ```json
 {
-    'roomId': "r0123",
-    'players': ["u123", "u234"]
+    "roomId": "r0123",
+    "players": ["u123", "u234"]
 }
 ```
 
@@ -127,7 +127,7 @@ json =
 
 ```json
 {
-    'round': 0
+    "round": 0
 }
 ```
 
@@ -137,8 +137,8 @@ Server Event **"ready"** json =
 
 ```json
 {
-    'userId': "u123",
-    'roomId': "r123"
+    "userId": "u123",
+    "roomId": "r123"
 }
 ```
 
@@ -147,8 +147,8 @@ Server Event **"ready"** json =
 json =
 ```json
 {
-    'question': "What's the weather today?",
-    'options': ["Fine.", "Good."]
+    "question": "What"s the weather today?",
+    "options": ["Fine.", "Good."]
 }
 ```
 
@@ -157,14 +157,14 @@ json =
 Server Event **"answer"**, json =
 ```json
 {
-    'userId': "u123",
-    'roomId': "r123",
-    'data': {
-        'magic': 0,
-        'score': 0,
-        'combo': 0,
-        'answer': 0,
-        'board': [0,1,2]
+    "userId": "u123",
+    "roomId": "r123",
+    "data": {
+        "magic": 0,
+        "score": 0,
+        "combo": 0,
+        "answer": 0,
+        "board": [0,1,2]
     }
 }
 ```
@@ -177,20 +177,20 @@ json =
 
 ```json
 {
-    'gameOver': false,
-    'players': [{
-        'userId': 'u123',
-        'win': true,
-        'right': true,
-        'magic': 0,
-        'score': 1
+    "gameOver": false,
+    "players": [{
+        "userId": "u123",
+        "win": true,
+        "right": true,
+        "magic": 0,
+        "score": 1
     },
     {
-        'userId': 'u124',
-        'win': false,
-        'right': true,
-        'magic': 0,
-        'score': -1
+        "userId": "u124",
+        "win": false,
+        "right": true,
+        "magic": 0,
+        "score": -1
     }]
 }
 ```
@@ -201,8 +201,8 @@ Server Event **"nextRound"**, json =
 
 ```json
 {
-    'userId': 'u123',
-    'roomId': 'r0'
+    "userId": "u123",
+    "roomId": "r0"
 }
 ```
 
@@ -214,31 +214,31 @@ Server Event **"nextRound"**, json =
 
 ### I. STAGE
 
-#### Server Event 'openRoom'
+#### Server Event "openRoom"
 
-Add new player to a room and broadcast room id and players' id.
-
-json =
-
-```json
-{
-    'userId': 'u123',
-    'auth': '***'
-}
-```
-
-When both players are ready, emit Client Broadcast Event **'intoRoom'**.
+Add new player to a room and broadcast room id and players" id.
 
 json =
 
 ```json
 {
-    'roomId': "r0123",
-    'players': ["u123", "u234"]
+    "userId": "u123",
+    "auth": "***"
 }
 ```
 
-And emit Cient Broadcast Event **'startGame'**.
+When both players are ready, emit Client Broadcast Event **"intoRoom"**.
+
+json =
+
+```json
+{
+    "roomId": "r0123",
+    "players": ["u123", "u234"]
+}
+```
+
+And emit Cient Broadcast Event **"startGame"**.
 
 json =
 
@@ -250,49 +250,49 @@ json =
 
 ### II. DUEL
 
-#### Server Event 'ready'
+#### Server Event "ready"
 
-'ready' means ready for a question.
+"ready" means ready for a question.
 
 json =
 
 ```json
 {
-    'userId': 'u123',
-    'roomId': 'r0'
+    "userId": "u123",
+    "roomId": "r0"
 }
 ```
 
-When both are ready, emit Client Broadcast Event **'question'**
+When both are ready, emit Client Broadcast Event **"question"**
 
 json =
 
 ```json
 {
-    'question': 'What\'s the weather today?',
-    'options': ['Fine.', 'Bad.', 'I don\'t know.']
+    "question": "What\"s the weather today?",
+    "options": ["Fine.", "Bad.", "I don\"t know."]
 }
 ```
 
-#### Server Event 'answer'
+#### Server Event "answer"
 
 json =
 
 ```json
 {
-    'userId': 'u123',
-    'roomId': 'r0',
-    'data': {
-        'magic': 0,
-        'score': 0,
-        'combo': 0,
-        'answer': 0,
-        'board': ['c0','c1','c2']
+    "userId": "u123",
+    "roomId": "r0",
+    "data": {
+        "magic": 0,
+        "score": 0,
+        "combo": 0,
+        "answer": 0,
+        "board": ["c0","c1","c2"]
     }
 }
 ```
 
-Check if player's game value (magic and score) identical.
+Check if player"s game value (magic and score) identical.
 
 When both are ready, **Judge** whether Game over, who wins, and update player game values.
 
@@ -302,20 +302,20 @@ json =
 
 ```json
 {
-    'gameOver': false,
-    'players': [{
-        'userId': 'u123',
-        'win': true,
-        'right': true,
-        'magic': 0,
-        'score': 1
+    "gameOver": false,
+    "players": [{
+        "userId": "u123",
+        "win": true,
+        "right": true,
+        "magic": 0,
+        "score": 1
     },
     {
-        'userId': 'u124',
-        'win': false,
-        'right': true,
-        'magic': 0,
-        'score': -1
+        "userId": "u124",
+        "win": false,
+        "right": true,
+        "magic": 0,
+        "score": -1
     }]
 }
 ```
@@ -328,12 +328,12 @@ json =
 
 ```json
 {
-    userId: 'u123',
-    roomId: 'r0'
+    userId: "u123",
+    roomId: "r0"
 }
 ```
 
-When both are ready, emit Client Broadcast Event **'startGame'**
+When both are ready, emit Client Broadcast Event **"startGame"**
 
 json =
 
@@ -349,7 +349,7 @@ json =
 
 ### inner protocol
 
-进程间通信协议，在实例一个 msg 时，msg.src = 'arena'，msg.data 格式为：
+进程间通信协议，在实例一个 msg 时，msg.src = "arena"，msg.data 格式为：
 
 ```python
 {
@@ -381,7 +381,7 @@ To Room
     }
 }
 ```
-Room 回信时也要 msg.src 设置成发信方，比如 new guest 成功后的反馈， msg.src == 'arena'
+Room 回信时也要 msg.src 设置成发信方，比如 new guest 成功后的反馈， msg.src == "arena"
 
 ### guest leave
 
