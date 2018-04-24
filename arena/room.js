@@ -4,6 +4,22 @@ const Emitter = require('events');
 
 const e = new Emitter();
 
+db.init(function (err, result) {
+    if (err) {
+        console.log('[room/]: initiate error ' + err.toString());
+    } else {
+        console.log('[room/]: result: ' + result.toString());
+    }
+});
+
+db.init_test(function (err, result) {
+    if (err) {
+        console.log('[room/]: initiate test error ' + err.toString());
+    } else {
+        console.log('[room/]: test result: ' + result.toString());
+    }
+});
+
 /**
  * @param userId: string
  * @param callback: function (ok, data)
@@ -108,6 +124,13 @@ e.on('judge', function (room, data, callback) {
                     gameOver: gameOver,
                     players: players
                 });
+                if (gameOver) {
+                    room.players.get(winUserId).win ++;
+                    room.players.get(room.playerIds[0]).all ++;
+                    room.players.get(room.playerIds[1]).all ++;
+                    // TODO: db.update('user', id, callback)
+                    // TODO: db.update('card', id, callback)
+                }
             });
         } else {
             callback(false, {});

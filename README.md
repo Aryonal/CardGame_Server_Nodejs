@@ -110,8 +110,8 @@ Client Broadcast Event **"intoRoom"**, json =
 
 ```json
 {
-    roomId: "r0123",
-    players: ["u123", "u234"]
+    'roomId': "r0123",
+    'players': ["u123", "u234"]
 }
 ```
 
@@ -127,7 +127,7 @@ json =
 
 ```json
 {
-    round: 0
+    'round': 0
 }
 ```
 
@@ -137,8 +137,8 @@ Server Event **"ready"** json =
 
 ```json
 {
-    userId: "u123",
-    roomId: "r123"
+    'userId': "u123",
+    'roomId': "r123"
 }
 ```
 
@@ -147,8 +147,8 @@ Server Event **"ready"** json =
 json =
 ```json
 {
-    question: "What's the weather today?",
-    options: ["Fine.", "Good."]
+    'question': "What's the weather today?",
+    'options': ["Fine.", "Good."]
 }
 ```
 
@@ -157,14 +157,14 @@ json =
 Server Event **"answer"**, json =
 ```json
 {
-    userId: "u123",
-    roomId: "r123",
-    data: {
-        magic: 0,
-        score: 0,
-        combo: 0,
-        answer: 0,
-        board: [0,1,2]
+    'userId': "u123",
+    'roomId': "r123",
+    'data': {
+        'magic': 0,
+        'score': 0,
+        'combo': 0,
+        'answer': 0,
+        'board': [0,1,2]
     }
 }
 ```
@@ -177,20 +177,20 @@ json =
 
 ```json
 {
-    gameOver: false,
-    players: [{
-        userId: 'u123',
-        win: true,
-        right: true,
-        magic: 0,
-        score: 1
+    'gameOver': false,
+    'players': [{
+        'userId': 'u123',
+        'win': true,
+        'right': true,
+        'magic': 0,
+        'score': 1
     },
     {
-        userId: 'u124',
-        win: false,
-        right: true,
-        magic: 0,
-        score: -1
+        'userId': 'u124',
+        'win': false,
+        'right': true,
+        'magic': 0,
+        'score': -1
     }]
 }
 ```
@@ -201,8 +201,8 @@ Server Event **"nextRound"**, json =
 
 ```json
 {
-    userId: 'u123',
-    roomId: 'r0'
+    'userId': 'u123',
+    'roomId': 'r0'
 }
 ```
 
@@ -222,8 +222,8 @@ json =
 
 ```json
 {
-    userId: 'u123',
-    auth: '***'
+    'userId': 'u123',
+    'auth': '***'
 }
 ```
 
@@ -233,8 +233,8 @@ json =
 
 ```json
 {
-    roomId: "r0123",
-    players: ["u123", "u234"]
+    'roomId': "r0123",
+    'players': ["u123", "u234"]
 }
 ```
 
@@ -258,8 +258,8 @@ json =
 
 ```json
 {
-    userId: 'u123',
-    roomId: 'r0'
+    'userId': 'u123',
+    'roomId': 'r0'
 }
 ```
 
@@ -269,8 +269,8 @@ json =
 
 ```json
 {
-    question: 'What\'s the weather today?',
-    options: ['Fine.', 'Bad.', 'I don\'t know.']
+    'question': 'What\'s the weather today?',
+    'options': ['Fine.', 'Bad.', 'I don\'t know.']
 }
 ```
 
@@ -280,14 +280,14 @@ json =
 
 ```json
 {
-    userId: 'u123',
-    roomId: 'r0',
-    data: {
-        magic: 0,
-        score: 0,
-        combo: 0,
-        answer: 0,
-        board: ['c0','c1','c2']
+    'userId': 'u123',
+    'roomId': 'r0',
+    'data': {
+        'magic': 0,
+        'score': 0,
+        'combo': 0,
+        'answer': 0,
+        'board': ['c0','c1','c2']
     }
 }
 ```
@@ -302,20 +302,20 @@ json =
 
 ```json
 {
-    gameOver: false,
-    players: [{
-        userId: 'u123',
-        win: true,
-        right: true,
-        magic: 0,
-        score: 1
+    'gameOver': false,
+    'players': [{
+        'userId': 'u123',
+        'win': true,
+        'right': true,
+        'magic': 0,
+        'score': 1
     },
     {
-        userId: 'u124',
-        win: false,
-        right: true,
-        magic: 0,
-        score: -1
+        'userId': 'u124',
+        'win': false,
+        'right': true,
+        'magic': 0,
+        'score': -1
     }]
 }
 ```

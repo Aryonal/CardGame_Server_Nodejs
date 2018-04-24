@@ -42,7 +42,6 @@ const handle = function (server) {
                 if (ok) {
                     io.to(roomId).emit('intoRoom', JSON.stringify(data));
                     io.to(roomId).emit('startGame', JSON.stringify({}));
-                    // client.to(room).emit('reply', 'new member.'); // this client won't receive this msg.
                 }
             });
         });
